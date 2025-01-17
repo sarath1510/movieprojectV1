@@ -97,3 +97,6 @@ jobs:
       run: |
         kustomize edit set image backend=110584364041.dkr.ecr.us-east-1.amazonaws.com/$REPO_NAME:$IMAGE_TAG
         kustomize build | kubectl apply -f -
+        
+    - name: Get Kubernetes Services (Show External IPs)
+      run: kubectl get svc
