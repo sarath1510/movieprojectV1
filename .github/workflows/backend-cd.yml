@@ -69,7 +69,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        # aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-east-1
         
     - name: Login to Amazon ECR
@@ -80,23 +80,23 @@ jobs:
       working-directory: starter/backend
       env:
         IMAGE_TAG: latest
-        REPO_NAME: backend-app
+        REPO_NAME: backend
       run: |
         docker build --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 --tag 110584364041.dkr.ecr.us-east-1.amazonaws.com/$REPO_NAME:$IMAGE_TAG .
         docker push 110584364041.dkr.ecr.us-east-1.amazonaws.com/$REPO_NAME:$IMAGE_TAG
 
     - name: Update Kubeconfig
       run: |
-        aws eks update-kubeconfig --name sarath_movie_project_v1 --region us-east-1
+        aws eks update-kubeconfig --name cluster --region us-east-1
 
     - name: Deploy Docker Image to Amazon EKS
       working-directory: starter/backend/k8s
       env:
         IMAGE_TAG: latest
-        REPO_NAME: backend-app
+        REPO_NAME: backend
       run: |
         kustomize edit set image backend=110584364041.dkr.ecr.us-east-1.amazonaws.com/$REPO_NAME:$IMAGE_TAG
         kustomize build | kubectl apply -f -
 
     - name: Get Kubernetes Services (Show External IPs)
-      run: kubectl describe svc backend
+      run: kubectl get pods
